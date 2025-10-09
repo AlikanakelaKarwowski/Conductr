@@ -1,0 +1,16 @@
+# docker/Dockerfile.gateway
+FROM ghcr.io/astral-sh/uv:python3.10-bookworm AS deps
+WORKDIR /app
+COPY pyproject.toml uv.lock ./
+RUN uv sync --frozen --no-dev
+
+FROM python:3.10-slim
+WORKDIR /app
+# put uv-installed venv on PATH
+COPY --from=deps /app/.venv /app/.venv
+ENV PATH="/app/.venv/bin:$PATH"
+# copy only the gateway code
+COPY gateway/ gateway/
+# default: one shard for hello-world
+ENV TOTAL_SHARDS=1
+CMD ["python", "-m", "gateway.main"]
