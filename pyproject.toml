@@ -1,0 +1,13 @@
+[project]
+name = "conductr"
+version = "0.1.0"
+description = "Discord Bot to make AI background music for your voice channel"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "cryptography>=46.0.2",
+    "discord-py>=2.6.4",
+    "fastapi>=0.118.2",
+    "pydantic-settings>=2.11.0",
+    "redis>=6.4.0",
+]
