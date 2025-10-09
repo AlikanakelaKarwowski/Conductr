@@ -14,6 +14,7 @@ dependencies = [
     "itsdangerous>=2.2.0",
     "jinja2>=3.1.6",
     "passlib[bcrypt]>=1.7.4",
+    "prometheus-client>=0.23.1",
     "pydantic-settings>=2.11.0",
     "pynacl>=1.6.0",
     "python-jose[cryptography]>=3.5.0",
@@ -22,19 +23,21 @@ dependencies = [
     "wavelink>=3.4.1",
 ]
 
-[tool.uv.scripts]
+[tool.taskipy.tasks]
 # ---- Python (no Docker) ----
 gateway = "python -m gateway.main"
 interactions = "uvicorn interactions.main:app --host 0.0.0.0 --port 8080"
 register-commands = "python interactions/register_commands.py"
+web = "uvicorn web.main:app --host 0.0.0.0 --port 8081"
 
 # ---- Docker: build images ----
 gateway-docker-build = "docker build -f docker/Dockerfile.gateway -t conductr-gateway ."
 interactions-docker-build = "docker build -f docker/Dockerfile.interactions -t conductr-interactions ."
-
+web-docker-build = "docker build -f docker/Dockerfile.web -t conductr-web ."
 # ---- Docker: run containers (expects .env in project root) ----
 gateway-docker = "docker run --rm --env-file .env conductr-gateway"
 interactions-docker = "docker run --rm --env-file .env -p 8080:8080 conductr-interactions"
+web-docker = "docker run --rm --env-file .env -p 8081:8081 conductr-web"
 
 # ---- Docker Compose helpers (local stack) ----
 compose-up = "docker compose -f deploy/compose.dev.yml up --build"
