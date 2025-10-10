@@ -11,12 +11,28 @@ TOKEN = os.getenv("DISCORD_BOT_TOKEN")
 url = f"https://discord.com/api/v10/applications/{APP_ID}/commands"
 # or per-guild for instant: f"https://discord.com/api/v10/applications/{APP_ID}/guilds/{GUILD_ID}/commands"
 
-payload = {
-    "name": "ping",
-    "description": "Replies with pong.",
-    "type": 1,  # CHAT_INPUT
-}
+commands = [
+    {
+        "name": "ping",
+        "description": "Replies with pong.",
+        "type": 1,  # CHAT_INPUT
+    },
+    {
+        "name": "echo",
+        "description": "Echoes back your message.",
+        "type": 1,  
+        "options": [
+            {
+                "type": 3,  # STRING
+                "name": "message",
+                "description": "The message to echo back",
+                "required": True
+            }
+        ]
+    }
+]
 
 headers = {"Authorization": f"Bot {TOKEN}"}
-r = httpx.post(url, json=payload, headers=headers, timeout=30)
-print(r.status_code, r.text)
+
+r = httpx.put(url, json=commands, headers=headers, timeout=30)
+print(f"Commands : {r.status_code}, {r.text}")

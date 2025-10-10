@@ -36,19 +36,29 @@ def verify_discord_request(request: Request, body: bytes):
 async def interactions(request: Request):
     body = await request.body()
     verify_discord_request(request, body)
-    payload = json.loads(body)
+    command = json.loads(body)
 
-    t = payload.get("type")
+    t = command.get("type")
     # 1 = PING
     if t == 1:
         return {"type": 1}
 
     # 2 = APPLICATION_COMMAND
-    data = payload.get("data", {})
+    data = command.get("data", {})
     name = data.get("name")
 
     if name == "ping":
         # 4 = CHANNEL_MESSAGE_WITH_SOURCE (immediate response)
         return {"type": 4, "data": {"content": "pong 🏓"}}
-
+    
+    if name == "echo":
+        options = data.get("options", [])
+        message = "No message provided to echo."
+        for option in options:
+            if option.get("name") == "message":
+                message = option.get("value")
+                break
+        
+        return {"type": 4, "data": {"content": f"Echo: {message}"}}
+      
     return {"type": 4, "data": {"content": "Unknown command."}}
