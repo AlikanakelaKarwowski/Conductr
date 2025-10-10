@@ -5,6 +5,7 @@ from fastapi import FastAPI, Request, HTTPException
 from nacl.signing import VerifyKey
 from nacl.exceptions import BadSignatureError
 from dotenv import load_dotenv
+from interactions.command_utils import handle_ping, handle_echo, handle_unknown_command
 
 load_dotenv()
 app = FastAPI(title="interactions")
@@ -36,19 +37,22 @@ def verify_discord_request(request: Request, body: bytes):
 async def interactions(request: Request):
     body = await request.body()
     verify_discord_request(request, body)
-    payload = json.loads(body)
+    command = json.loads(body)
 
-    t = payload.get("type")
+    t = command.get("type")
     # 1 = PING
     if t == 1:
         return {"type": 1}
 
     # 2 = APPLICATION_COMMAND
-    data = payload.get("data", {})
+    data = command.get("data", {})
     name = data.get("name")
+    options = data.get("options", [])
 
+    # Handle commands
     if name == "ping":
-        # 4 = CHANNEL_MESSAGE_WITH_SOURCE (immediate response)
-        return {"type": 4, "data": {"content": "pong 🏓"}}
-
-    return {"type": 4, "data": {"content": "Unknown command."}}
+        return handle_ping()
+    elif name == "echo":
+        return handle_echo(options)
+    else:
+        return handle_unknown_command()
