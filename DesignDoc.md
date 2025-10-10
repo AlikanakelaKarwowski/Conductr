@@ -15,6 +15,8 @@ This bot integrates Sona AI music generation capabilities within a Discord bot, 
 - `/play` - Resume current track or play next in queue.  
 - `/pause` - Pause current playback.  
 - `/skip` - Skip current track.  
+- `/loop` - Toggle loop mode on or off for the current queue or track.  
+- `/playlast` - Play the last played song again.
 - `/stop` - Stop playback and clear queue.  
 - `/queue` - View current queue.  
 - `/volume <level>` - Adjust playback volume.  
