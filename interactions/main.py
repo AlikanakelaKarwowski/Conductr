@@ -5,6 +5,7 @@ from fastapi import FastAPI, Request, HTTPException
 from nacl.signing import VerifyKey
 from nacl.exceptions import BadSignatureError
 from dotenv import load_dotenv
+from interactions.command_utils import handle_ping, handle_echo, handle_unknown_command
 
 load_dotenv()
 app = FastAPI(title="interactions")
@@ -46,19 +47,12 @@ async def interactions(request: Request):
     # 2 = APPLICATION_COMMAND
     data = command.get("data", {})
     name = data.get("name")
+    options = data.get("options", [])
 
+    # Handle commands
     if name == "ping":
-        # 4 = CHANNEL_MESSAGE_WITH_SOURCE (immediate response)
-        return {"type": 4, "data": {"content": "pong 🏓"}}
-    
-    if name == "echo":
-        options = data.get("options", [])
-        message = "No message provided to echo."
-        for option in options:
-            if option.get("name") == "message":
-                message = option.get("value")
-                break
-        
-        return {"type": 4, "data": {"content": f"Echo: {message}"}}
-      
-    return {"type": 4, "data": {"content": "Unknown command."}}
+        return handle_ping()
+    elif name == "echo":
+        return handle_echo(options)
+    else:
+        return handle_unknown_command()
