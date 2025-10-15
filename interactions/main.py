@@ -5,7 +5,7 @@ from fastapi import FastAPI, Request, HTTPException
 from nacl.signing import VerifyKey
 from nacl.exceptions import BadSignatureError
 from dotenv import load_dotenv
-from interactions.command_utils import handle_ping, handle_echo, handle_unknown_command
+from interactions.command_utils import handle_ping, handle_echo, handle_join, handle_leave, handle_unknown_command
 
 load_dotenv()
 app = FastAPI(title="interactions")
@@ -54,5 +54,9 @@ async def interactions(request: Request):
         return handle_ping()
     elif name == "echo":
         return handle_echo(options)
+    elif name == "join":
+        return handle_join(command)
+    elif name == "leave":
+        return handle_leave(command)
     else:
         return handle_unknown_command()
