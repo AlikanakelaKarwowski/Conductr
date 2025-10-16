@@ -1,4 +1,4 @@
-from .voice_handler import connect_to_voice_channel, disconnect_from_voice_channel
+from interactions.voice_handler import connect_to_voice_channel, disconnect_from_voice_channel, voice_clients
 import asyncio
 
 def get_option_value(options, name, default=None):
@@ -43,12 +43,21 @@ def handle_join(command_data):
     }
 
 def handle_leave(command_data):
-    """Handle the leave voice command"""
+    """Handle leave voice command"""
     guild_id = command_data.get("guild_id")
-    print(f"Leaving voice channel in guild {guild_id}")
     
-    # Start a background task to disconnect
-    import asyncio
+    guild_id_str = str(guild_id)
+    
+    # Check if bot is in a voice channel in this guild
+    if guild_id_str not in voice_clients:
+        return {
+            "type": 4,  # CHANNEL_MESSAGE_WITH_SOURCE
+            "data": {
+                "content": "I'm not currently in a voice channel!",
+                "flags": 64  # Ephemeral flag
+            }
+        }
+    
     asyncio.create_task(disconnect_from_voice_channel(guild_id))
     
     return {
