@@ -29,6 +29,16 @@ commands = [
                 "required": True
             }
         ]
+    },
+    {
+        "name": "join",
+        "description": "Joins your voice channel.",
+        "type": 1,  # CHAT_INPUT
+    },
+    {
+        "name": "leave",
+        "description": "Leaves the voice channel.",
+        "type": 1,  # CHAT_INPUT
     }
 ]
 

@@ -10,3 +10,5 @@ ENV PATH="/app/.venv/bin:$PATH" PYTHONUNBUFFERED=1
 COPY interactions/ interactions/
 EXPOSE 8080
 CMD ["uvicorn","interactions.main:app","--host","0.0.0.0","--port","8080"]
+
+RUN pip install -U "discord.py[voice]" PyNaCl

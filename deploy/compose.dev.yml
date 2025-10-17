@@ -11,21 +11,21 @@ services:
       POSTGRES_DB: symphony
     ports: ["5432:5432"]
 
-  lavalink:
-    image: ghcr.io/lavalink-devs/lavalink:4
-    environment:
-      SERVER_PORT: 2333
-      LAVALINK_SERVER_PASSWORD: ${LAVALINK_PASSWORD}
-    volumes:
-      - ../lavalink/application.yml:/opt/Lavalink/application.yml:ro
-    ports: ["2333:2333"]
+  # lavalink:
+  #   image: ghcr.io/lavalink-devs/lavalink:4
+  #   environment:
+  #     SERVER_PORT: 2333
+  #     LAVALINK_SERVER_PASSWORD: ${LAVALINK_PASSWORD}
+  #   volumes:
+  #     - ../lavalink/application.yml:/opt/Lavalink/application.yml:ro
+  #   ports: ["2333:2333"]
 
   gateway:
     build:
       context: ..
       dockerfile: docker/Dockerfile.gateway
     env_file: ["../.env"]
-    depends_on: [redis, lavalink]
+    depends_on: [redis]
     # one container can run N shards for dev:
     environment:
       SHARD_RANGE: "0-1" # simple range string you parse in code
@@ -61,9 +61,18 @@ services:
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
     ports: ["9090:9090"]
+    depends_on:
+      - gateway
+      - interactions
+      - web
 
-  grafana:
-    image: grafana/grafana
-    ports: ["3000:3000"]
-    volumes:
-      - ./grafana:/etc/grafana/provisioning
+  # grafana:
+  #   image: grafana/grafana
+  #   ports: ["3000:3000"]
+  #   volumes:
+  #     - ./grafana:/etc/grafana/provisioning
+  #   environment:
+  #     GF_SECURITY_ADMIN_USER: admin
+  #     GF_SECURITY_ADMIN_PASSWORD: admin
+  #   depends_on:
+  #     - prometheus

@@ -45,4 +45,5 @@ compose-up = "docker compose -f deploy/compose.dev.yml up --build"
 compose-down = "docker compose -f deploy/compose.dev.yml down"
 
 # ---- Dev helper: expose interactions via ngrok (optional) ----
-ngrok-8080 = "ngrok http 8080"
+ngrok-api = "ngrok http 8080"
+ngrok-web = "ngrok http 8081"
