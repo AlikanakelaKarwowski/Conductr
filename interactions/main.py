@@ -5,7 +5,21 @@ from fastapi import FastAPI, Request, HTTPException
 from nacl.signing import VerifyKey
 from nacl.exceptions import BadSignatureError
 from dotenv import load_dotenv
-from interactions.command_utils import handle_ping, handle_echo, handle_join, handle_leave, handle_unknown_command
+from interactions.command_utils import (
+    handle_ping,
+    handle_echo,
+    handle_join,
+    handle_leave,
+    handle_unknown_command,
+)
+from prometheus_client import Counter, generate_latest, CONTENT_TYPE_LATEST
+from fastapi.responses import PlainTextResponse
+
+interactions_total = Counter("discord_interactions_total", "Count of interaction POSTs")
+signature_failures = Counter(
+    "discord_signature_failures_total", "Invalid signature requests"
+)
+
 
 load_dotenv()
 app = FastAPI(title="interactions")
@@ -36,7 +50,12 @@ def verify_discord_request(request: Request, body: bytes):
 @app.post("/interactions")
 async def interactions(request: Request):
     body = await request.body()
-    verify_discord_request(request, body)
+    try:
+        verify_discord_request(request, body)
+    except HTTPException:
+        signature_failures.inc()
+        raise
+    interactions_total.inc()
     command = json.loads(body)
 
     t = command.get("type")
@@ -60,3 +79,8 @@ async def interactions(request: Request):
         return handle_leave(command)
     else:
         return handle_unknown_command()
+
+
+@app.get("/metrics")
+def metrics():
+    return PlainTextResponse(generate_latest(), media_type=CONTENT_TYPE_LATEST)
