@@ -5,9 +5,12 @@ import signal
 import asyncio
 import discord
 from dotenv import load_dotenv
+from prometheus_client import start_http_server, Gauge
 
 load_dotenv()
 
+gateway_latency = Gauge("gateway_latency_seconds", "WebSocket heartbeat latency")
+active_shards = Gauge("gateway_active_shards", "Active shard count")
 TOKEN_ENV = "DISCORD_BOT_TOKEN"
 
 intents = discord.Intents.none()
@@ -27,6 +30,7 @@ async def runner(client: discord.AutoShardedClient):
     await client.wait_until_ready()
     print(f"gateway: logged in as {client.user} (id={client.user.id})", flush=True)
     print(f"gateway: shard_count={client.shard_count}", flush=True)
+    active_shards.set(client.shard_count or 1)
     await shutdown_event.wait()
     await client.close()
 
@@ -38,6 +42,7 @@ class Bot(discord.AutoShardedClient):
 
 
 def main():
+    start_http_server(9300)
     token = os.getenv(TOKEN_ENV)
     if not token:
         print(
