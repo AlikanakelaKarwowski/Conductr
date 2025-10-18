@@ -66,13 +66,18 @@ services:
       - interactions
       - web
 
-  # grafana:
-  #   image: grafana/grafana
-  #   ports: ["3000:3000"]
-  #   volumes:
-  #     - ./grafana:/etc/grafana/provisioning
-  #   environment:
-  #     GF_SECURITY_ADMIN_USER: admin
-  #     GF_SECURITY_ADMIN_PASSWORD: admin
-  #   depends_on:
-  #     - prometheus
+  grafana:
+    image: grafana/grafana
+    container_name: grafana
+    ports: ["3000:3000"]
+    volumes:
+      # mount dashboards into the exact path Grafana expects
+      - ./grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards:ro
+      # mount datasources into the exact path Grafana expects
+      - ./grafana/provisioning/datasources:/etc/grafana/provisioning/datasources:ro
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_USERS_ALLOW_SIGN_UP: false
+    depends_on:
+      - prometheus
