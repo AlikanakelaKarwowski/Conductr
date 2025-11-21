@@ -21,9 +21,10 @@ connection_url = URL.create(
 engine = create_engine(connection_url)
 
 # Test the connection
-try:
-    connection = engine.connect()
-    print("Connected to PostgreSQL database successfully!")
-    connection.close()
-except Exception as e:
-    print(f"Error connecting to database: {e}")
+if __name__ == "__main__":
+    try:
+        connection = engine.connect()
+        print("Connected to PostgreSQL database successfully!")
+        connection.close()
+    except Exception as e:
+        print(f"Error connecting to database: {e}")
