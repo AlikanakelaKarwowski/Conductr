@@ -1,10 +1,11 @@
 # Import SQLAlchemy's create_engine function
 from sqlalchemy import create_engine
 from sqlalchemy.engine import URL
+from sqlalchemy.orm import sessionmaker
+from contextlib import contextmanager
 from dotenv import load_dotenv
 import os
 
-# Load environment variables
 load_dotenv()
 
 connection_url = URL.create(
@@ -16,9 +17,29 @@ connection_url = URL.create(
     database=os.getenv("DB_NAME")
 )
 
+engine = create_engine(
+    connection_url, 
+    echo=True,
+    pool_size=5,          # Number of connections to keep open
+    max_overflow=10,      # Extra connections when pool is full
+    pool_pre_ping=True    # Test connections before using
+)
 
-# Create a connection string
-engine = create_engine(connection_url)
+# Session factory
+SessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False, expire_on_commit=False, future=True)
+
+@contextmanager
+def get_session():
+    session = SessionLocal()
+    try:
+        yield session
+        if session.dirty or session.new or session.deleted:
+            session.commit()
+    except Exception as e:
+        session.rollback()
+        raise  
+    finally:
+        session.close()
 
 # Test the connection
 if __name__ == "__main__":
